@@ -1,0 +1,421 @@
+/* =====================================================================
+   Polish v1.28 — lapisan tampilan & animasi (dimuat setelah report.css / popup.css).
+   Semua animasi mati otomatis bila sistem meminta "kurangi gerakan".
+   ===================================================================== */
+:root {
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 4px 14px -6px rgba(16, 24, 40, .10);
+  --shadow-lg: 0 18px 44px -12px rgba(16, 24, 40, .28);
+}
+:root[data-theme="dark"] { --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shadow: 0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6); } }
+
+/* ---------- latar & kepala ---------- */
+body { background-image: radial-gradient(900px 260px at 12% -80px, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%); background-repeat: no-repeat; }
+.sticky-head { background: color-mix(in srgb, var(--bg) 82%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.top h1 { font-size: 21px; letter-spacing: -.02em; }
+.top h1::before { border-radius: 11px; width: 34px; height: 34px; box-shadow: 0 4px 12px -2px rgba(15,118,110,.5), inset 0 1px 0 rgba(255,255,255,.3); }
+.actions button.ghost { background: transparent; box-shadow: none; border-color: transparent; color: var(--muted); padding: 6px 10px; }
+.actions button.ghost:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: transparent; }
+
+/* ---------- tombol ---------- */
+button { border-radius: 10px; transition: border-color .18s var(--ease), background .18s var(--ease), color .18s var(--ease), transform .12s var(--ease), box-shadow .18s var(--ease), filter .18s; }
+button:active:not(:disabled) { transform: scale(.97); }
+.primary { border-radius: 10px; box-shadow: 0 1px 2px rgba(15,118,110,.4), 0 6px 14px -6px rgba(15,118,110,.55); }
+.primary:hover { box-shadow: 0 1px 2px rgba(15,118,110,.4), 0 10px 20px -8px rgba(15,118,110,.65); }
+input, select { border-radius: 10px; }
+
+/* ---------- tab ---------- */
+.tabs a { position: relative; transition: color .18s var(--ease), background .18s var(--ease); }
+.tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform .28s var(--ease); }
+.tabs a:hover::after { transform: scaleX(.45); }
+.tabs a.active::after, .tabs a[aria-current="page"]::after { transform: scaleX(1); }
+
+/* ---------- chip periode ---------- */
+.chips button { transition: background .18s var(--ease), color .18s var(--ease), border-color .18s var(--ease), transform .12s var(--ease); }
+.chips button.active, .chips button[aria-pressed="true"] { box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 60%, transparent); }
+
+/* ---------- kartu ---------- */
+.card, .filters { border-color: color-mix(in srgb, var(--border) 70%, transparent); }
+.card { transition: box-shadow .25s var(--ease), border-color .25s var(--ease); }
+.card:hover { border-color: var(--border); box-shadow: var(--shadow), 0 10px 28px -16px rgba(16,24,40,.22); }
+.card h2 { font-size: 15.5px; letter-spacing: -.01em; }
+
+/* ---------- KPI ---------- */
+.kpi { padding: 16px 18px 14px; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.kpi::after { display: none; }                         /* garis kiri diganti titik warna */
+.kpi > span:first-child { display: flex; align-items: center; gap: 7px; font-size: 12.5px; }
+.kpi > span:first-child::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k) 18%, transparent); flex: none; }
+.kpi strong { font-size: 24px; margin-top: 6px; letter-spacing: -.025em; }
+.kpi small { margin-top: 2px; }
+.kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow), 0 14px 28px -14px rgba(16,24,40,.25); }
+.kpi.k-profit { background: linear-gradient(135deg, color-mix(in srgb, var(--good) 11%, var(--card)), var(--card) 75%); border-color: color-mix(in srgb, var(--good) 28%, var(--border)); }
+.kpi.k-profit { --k: var(--good); }
+.kpi.k-profit strong { color: var(--good); }
+.kpi.k-profit strong.neg { color: var(--danger); }
+@media (min-width: 1000px) {
+  .kpis > .kpi.k-rev { grid-column: span 3; }
+  .kpis > .kpi.k-profit { grid-column: span 6; padding: 20px 24px 18px; }
+  .kpis > .kpi.k-profit strong { font-size: 38px; margin-top: 8px; letter-spacing: -.035em; }
+  .kpis > .kpi.k-profit small { font-size: 13px; }
+  .kpis > .kpi.k-orders { grid-column: span 3; }
+  .kpis > .kpi:nth-child(n+4) { grid-column: span 3; }
+}
+
+/* ---------- baris tabel ---------- */
+tbody tr { transition: background-color .15s var(--ease); }
+tbody tr:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+
+/* ---------- grafik ---------- */
+.chart rect.bar { transition: opacity .15s, filter .15s; }
+.chart rect.bar:hover { filter: brightness(1.12); }
+.bar-fill { border-radius: 999px; }
+
+/* ---------- dialog & toast ---------- */
+dialog { border-radius: 18px; box-shadow: var(--shadow-lg); }
+dialog::backdrop { background: rgba(10, 16, 24, .45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+
+/* =====================================================================
+   POP-UP PENCATATAN
+   ===================================================================== */
+.stat { border-radius: 12px; background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)), var(--surface)); }
+.stat::before { width: 0; }
+.stat strong { letter-spacing: -.02em; }
+.stat:nth-child(n+2) strong { color: var(--accent); }
+.stat strong.neg, .stat:nth-child(n+2) strong.neg { color: var(--danger); }
+.stat strong { font-size: 16px; }
+.stat { min-width: 0; padding: 9px 10px 9px 11px; }
+.stat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat small { overflow-wrap: anywhere; line-height: 1.3; }
+header h1::before { border-radius: 8px; box-shadow: 0 3px 8px -2px rgba(15,118,110,.5); }
+.link { border-radius: 9px; transition: background .18s var(--ease), color .18s var(--ease), transform .12s var(--ease); }
+.link:active { transform: scale(.96); }
+.sec { text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--text); border-bottom-color: color-mix(in srgb, var(--border) 80%, transparent); }
+.preview { border-radius: 10px; transition: background .2s var(--ease), color .2s var(--ease); }
+.secondary { border-radius: 10px; transition: background .18s var(--ease), transform .12s var(--ease); }
+.secondary:active { transform: scale(.98); }
+.results { border-radius: 10px; }
+
+/* =====================================================================
+   GERAK (hanya bila pengguna tidak meminta kurangi gerakan)
+   Satu adegan saat halaman dibuka: kartu KPI muncul berurutan, grafik tergambar.
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  .card { animation: none; }                                     /* ganti fadeUp bawaan di tiap kartu */
+  .kpi { animation: kpiIn .5s var(--ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+  @keyframes kpiIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+  .kpis[data-seen] > .kpi { animation: none; }                   /* render ulang (filter) tidak mengulang animasi masuk */
+
+  #trend.draw rect.bar { transform-box: fill-box; transform-origin: 50% 100%; animation: barGrow .7s var(--ease) both; animation-delay: calc(var(--i, 0) * 14ms); }
+  #trend.draw polyline.line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: lineDraw 1.1s .25s var(--ease) forwards; }
+  #trend.draw path.area { animation: areaIn .8s .6s ease-out both; }
+  #trend.draw circle.dot { animation: dotIn .35s ease-out both; animation-delay: calc(.55s + var(--i, 0) * 14ms); transform-box: fill-box; transform-origin: center; }
+  @keyframes barGrow { from { transform: scaleY(0); opacity: .3; } to { transform: scaleY(1); opacity: 1; } }
+  @keyframes lineDraw { to { stroke-dashoffset: 0; } }
+  @keyframes areaIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes dotIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+
+  /* batang daftar (Per marketplace, Produk terlaris, target) tumbuh dari kiri hanya saat halaman pertama dibuka */
+  html:not([data-ready]) .bar-fill, html:not([data-ready]) .goal-fill, html:not([data-ready]) .wf-fill { transform-origin: 0 50%; animation: fillX .8s .25s var(--ease) both; }
+  @keyframes fillX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* pop-up: konfirmasi tersimpan & angka berdenyut saat berubah */
+  #msg:not(:empty) { animation: msgIn .35s var(--ease); }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .tick { animation: tick .5s var(--ease); }
+  @keyframes tick { 40% { transform: translateY(-2px); color: var(--accent); } }
+  .preview.warn { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+}
+@media (prefers-reduced-motion: reduce) { .kpi:hover { transform: none; } }
+
+/* =====================================================================
+   v1.30.1 — perapian tampilan & responsif
+   ===================================================================== */
+
+/* 1) Tabel produk & riwayat iklan jadi kartu di ponsel (sebelumnya melebar keluar layar) */
+@media (max-width: 700px) {
+  .table-wrap:has(.card-table) { max-height: none; overflow: visible; }
+  .card-table, .card-table tbody { display: block; width: 100%; }
+  .card-table thead { display: none; }
+  .card-table tbody tr {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px;
+    padding: 12px; margin: 0 0 10px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--card);
+  }
+  .card-table tbody tr:nth-child(even), .card-table tbody tr:hover { background: var(--card); }
+  .card-table td { display: flex; flex-direction: column; gap: 1px; padding: 3px 0; border: 0; min-width: 0; max-width: none; text-align: left; white-space: normal; }
+  .card-table td.r { text-align: left; }
+  .card-table td[data-label]::before {
+    content: attr(data-label); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+  }
+  .card-table td.prod { grid-column: 1 / -1; order: -1; font-weight: 600; max-width: none; }
+  .card-table td.prod[data-label="Catatan"]::before { display: block; }
+  .card-table td:last-child:not([data-label]) { grid-column: 1 / -1; flex-direction: row; gap: 8px; padding-top: 8px; }
+  .card-table td:last-child:not([data-label]) button { flex: 1; padding: 7px 10px; }
+  .card-table td.limit { grid-column: 1 / -1; text-align: center; color: var(--muted); }
+}
+
+/* 2) Tombol aksi di ponsel: grid 2 kolom — semua tombol terlihat, tidak ada yang terpotong */
+@media (max-width: 600px) {
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    overflow: visible; width: 100%; margin: 0; padding: 0; scroll-snap-type: none;
+  }
+  .actions > * { width: 100%; min-width: 0; justify-content: center; text-align: center; padding: 8px 10px; }
+  .actions .theme-toggle { grid-column: 1 / -1; }
+  .top:has(> .actions.solo) .actions { display: flex; width: auto; }
+  /* menu tab: empat tab sama lebar, tidak terpotong */
+  .tabs { -webkit-mask-image: none; mask-image: none; overflow-x: visible; }
+  .tabs a { flex: 1 1 0; min-width: 0; text-align: center; padding: 9px 4px; font-size: 12.5px; white-space: nowrap; }
+}
+@media (max-width: 360px) { .tabs a { font-size: 11.5px; padding: 9px 2px; } }
+
+/* 3) Chip periode: tepi kanan memudar sebagai petunjuk bisa digeser */
+@media (max-width: 600px) {
+  .chips { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent); }
+}
+
+/* 4) Layar sedang (tablet): isi memenuhi lebar, tabel besar tetap bisa digeser */
+@media (min-width: 701px) and (max-width: 1000px) {
+  .kpis > .kpi { min-width: 0; }
+  .table-wrap { -webkit-overflow-scrolling: touch; }
+}
+
+/* 5) Cegah teks panjang (nama produk, resi) merusak tata letak */
+.card, .kpi, .top > div { min-width: 0; }
+.kpi strong, .card h2 { overflow-wrap: anywhere; }
+td.prod strong { overflow-wrap: anywhere; }
+img, svg { max-width: 100%; }
+
+/* 6) Sentuhan akhir: target sentuh nyaman, fokus jelas, gulir halus */
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media (pointer: coarse) {
+  button, select, input:not([type="checkbox"]):not([type="radio"]) { min-height: 40px; }
+  .chips button { min-height: 36px; }
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+.card { transition: box-shadow .25s var(--ease); }
+.empty { padding: 28px 12px; }
+
+/* penyempurnaan tombol aksi & lencana di ponsel */
+@media (max-width: 600px) {
+  .top { position: relative; }
+  .top:not(:has(> .actions.solo)) .actions .theme-toggle { position: absolute; top: 0; right: 0; grid-column: auto; width: auto; z-index: 2; }
+  .top:not(:has(> .actions.solo)) h1 { padding-right: 44px; }
+  .actions button:not(.theme-toggle) { border: 1px solid var(--border); background: var(--card); border-radius: 10px; box-shadow: none; }
+  .actions button:not(.theme-toggle):active { background: var(--accent-soft); }
+}
+.card-table td .badge { align-self: flex-start; }
+@media (max-width: 700px) { table.zebra.card-table tbody tr:nth-child(even), table.zebra.card-table tbody tr:hover { background: var(--card); } }
+
+/* =====================================================================
+   v1.31 — HP: kepala halaman (judul + Impor/Ekspor) ikut tergulir ke atas
+   dan menyusut; hanya menu tab yang tetap menempel. Isi dashboard jadi
+   lebih lega. (Tanpa mengubah tinggi elemen saat menggulir, jadi tidak berkedip.)
+   ===================================================================== */
+@media (max-width: 600px) {
+  .sticky-head { display: contents; }
+  .sticky-head .top { margin-bottom: 8px; }
+  .tabs {
+    position: sticky; top: 0; z-index: 30;
+    margin: 0 calc(-1 * var(--pad)) 12px; padding: 0 var(--pad);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    transition: box-shadow .2s var(--ease);
+  }
+  .tabs[data-stuck] { box-shadow: 0 6px 14px -8px rgba(16, 24, 40, .28); border-bottom-color: transparent; }
+  html { scroll-padding-top: 52px; }
+}
+
+/* tombol "ke atas" — hanya di layar sempit */
+#toTop { display: none; }
+@media (max-width: 600px) {
+  #toTop:not([hidden]) {
+    display: grid; place-items: center; position: fixed; right: 14px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40;
+    width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    background: var(--accent); color: #fff; border: 0;
+    box-shadow: 0 6px 16px -4px rgba(15, 118, 110, .55);
+  }
+  #toTop:active { transform: scale(.94); }
+  .notice { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}
+@media print { #toTop { display: none !important; } }
+:root[data-theme="dark"] #toTop { color: #062a26; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #toTop { color: #062a26; } }
+
+
+/* =====================================================================
+   v1.32 — HP: tombol data dilipat ke satu tombol "Menu data"; ikon kosong bergaya SVG
+   ===================================================================== */
+#actionsToggle { display: none; }
+@media (max-width: 600px) {
+  #actionsToggle {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    margin: 0 0 8px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); font-weight: 600;
+  }
+  #actionsToggle svg { transition: transform .25s var(--ease); }
+  #actionsToggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .top.actions-fold .actions > button:not(.theme-toggle) { display: none; }
+  .top.actions-fold.actions-open .actions > button:not(.theme-toggle) { display: flex; }
+}
+@media (max-width: 600px) and (prefers-reduced-motion: no-preference) {
+  .top.actions-open .actions > button:not(.theme-toggle) { animation: kpiIn .28s var(--ease) both; }
+}
+@media print { #actionsToggle { display: none !important; } }
+
+.empty::before {
+  content: ""; width: 44px; height: 44px; margin: 0 auto 8px; border-radius: 14px;
+  background: var(--accent-soft) center / 24px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l2-3h12l2 3v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z'/%3E%3Cpath d='M4 7h16M9.5 12h5'/%3E%3C/svg%3E");
+  filter: none;
+}
+
+/* Teks sangat panjang tanpa spasi (nama produk, resi) membungkus, tidak mendorong layar melebar */
+.meta { gap: 12px; }
+.meta > span:first-child, .al-name, .fx-name, li > span { min-width: 0; overflow-wrap: anywhere; }
+.meta > span:last-child, .al-val, .fx-amt { flex: none; }
+td { overflow-wrap: anywhere; }
+td.r, td.num { overflow-wrap: normal; }
+.pform { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 800px) { .pform { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pform > *, .pform select, .pform input { min-width: 0; max-width: 100%; }
+.pform select, .filters select { text-overflow: ellipsis; }
+/* Di HP hanya tabel transaksi/produk/iklan yang berubah jadi kartu; tabel lain (pajak, biaya admin) tetap bisa digeser */
+@media (max-width: 700px) {
+  .table-wrap:not(:has(.tx-table, .card-table)) { overflow-x: auto; max-width: 100%; }
+  .tax-table { max-width: 100%; }
+}
+
+
+/* =====================================================================
+   v1.33 — HP: chip periode + filter (Periode, Marketplace, Cari) ikut menempel di bawah menu tab
+   saat halaman digulir. Dibuat ringkas: satu baris chip + satu baris tiga kolom, tanpa label teks.
+   Tinggi tab & chip diukur polish.js ke --tabs-h / --chips-h supaya tumpukannya pas.
+   ===================================================================== */
+@media (max-width: 600px) {
+  .tabs { margin-bottom: 0; }
+  .chips, .filters {
+    margin-left: calc(-1 * var(--pad)); margin-right: calc(-1 * var(--pad));
+    padding-left: var(--pad); padding-right: var(--pad);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .chips { position: sticky; top: var(--tabs-h, 44px); z-index: 29; margin-bottom: 0; padding-top: 10px; padding-bottom: 6px; }
+  .filters {
+    position: sticky; top: calc(var(--tabs-h, 44px) + var(--chips-h, 52px)); z-index: 28;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr); gap: 6px; align-items: stretch;
+    border: 0; border-radius: 0; box-shadow: none; margin-bottom: 12px; padding-top: 0; padding-bottom: 8px;
+    transition: box-shadow .2s var(--ease);
+  }
+  .filters[data-stuck] { box-shadow: 0 8px 14px -10px rgba(16, 24, 40, .32); }
+  .filters label, .filters label.grow { font-size: 0; gap: 0; min-width: 0; grid-column: auto; }   /* label teks disembunyikan; tetap terbaca pembaca layar */
+  /* mode tanggal sendiri: dua kolom — Periode | Marketplace, Dari | Sampai, lalu Cari selebar baris */
+  .filters:has(#fromWrap:not([hidden])) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .filters:has(#fromWrap:not([hidden])) label.grow { grid-column: 1 / -1; }
+  .filters:has(#fromWrap:not([hidden])) .grow { order: 9; }
+  .filters select, .filters input { font-size: 13px; min-height: 38px; padding: 0 8px; width: 100%; }
+  .filters input[type="date"] { font-size: 13px; }
+  html { scroll-padding-top: 150px; }
+}
+@media (max-width: 600px) {
+  .filters:has(#fromWrap:not([hidden])) > label:first-child { order: 1; }
+  .filters:has(#fromWrap:not([hidden])) > label:has(#mp) { order: 2; }
+  .filters:has(#fromWrap:not([hidden])) #fromWrap { order: 3; }
+  .filters:has(#fromWrap:not([hidden])) #toWrap { order: 4; }
+}
+
+/* =====================================================================
+   v1.35 — POP-UP: lebih ringkas & mudah dipakai
+   - kepala & menu lebih tipis; pencarian tanpa label di atasnya
+   - isian jarang dipakai dilipat di "Opsi lainnya" (terbuka otomatis bila terisi)
+   - panel bawah (dock): profit perkiraan selalu terlihat + dua tombol sebaris
+   ===================================================================== */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+header { padding-bottom: 9px; margin-bottom: 10px; }
+header h1 { margin-bottom: 8px; }
+.links { gap: 5px; }
+.link { background: transparent; border: 1px solid var(--border); padding: 5px 2px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.link:hover { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.search { margin-bottom: 14px; }
+.srch { display: block; position: relative; }
+.srch input {
+  padding-left: 32px; min-height: 38px;
+  background: var(--surface) no-repeat 10px center / 16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+  border-color: transparent;
+}
+.srch input:focus { background-color: var(--bg); border-color: var(--accent); }
+#form > h2 { font-size: 15px; letter-spacing: -.01em; margin: 2px 0 2px; }
+input, select { min-height: 38px; border-radius: 10px; }
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+/* tanda uang: "Rp 75.000" di dalam isian, agar angka besar mudah dibaca */
+label { position: relative; }
+.mh { position: absolute; right: 10px; bottom: 9px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--bg); padding-left: 6px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.mh:empty { display: none; }
+
+/* opsi lainnya */
+.more { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.more > summary { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; list-style: none; font-weight: 600; font-size: 12.5px; border-radius: 12px; }
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary small { margin-left: auto; color: var(--muted); font-weight: 400; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.more > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin: 0 2px 2px 4px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .25s var(--ease); }
+.more[open] > summary::after { transform: rotate(-135deg); margin-bottom: -2px; }
+.more > summary:hover { color: var(--accent); }
+.more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.more > summary i { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--accent-text); background: var(--accent); border-radius: 999px; padding: 1px 8px; }
+.more-body { display: flex; flex-direction: column; gap: 8px; padding: 2px 12px 12px; }
+.more-body input, .more-body select { background: var(--bg); }
+
+/* panel bawah */
+.actionbar { gap: 8px; margin-top: 6px; padding: 10px 14px 12px; box-shadow: 0 -12px 18px -14px rgba(16, 24, 40, .3); border-top-color: var(--border); }
+.preview { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; padding: 8px 12px; border-radius: 12px; background: var(--accent-soft); color: var(--text); }
+.preview .pv-main { display: flex; align-items: baseline; gap: 8px; color: var(--muted); font-size: 12px; min-width: 0; }
+.preview .pv-main strong { font-size: 18px; letter-spacing: -.02em; color: var(--accent); font-weight: 700; white-space: nowrap; }
+.preview .pv-side { color: var(--muted); font-size: 11.5px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+.preview .pv-side b { color: var(--danger); font-weight: 700; }
+.preview small { grid-column: 1 / -1; margin: 0; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preview.warn { background: var(--danger-soft); }
+.preview.warn .pv-main strong { color: var(--danger); }
+.dock-btns { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+.dock-btns .secondary { width: auto; padding: 0 14px; border-style: solid; border-color: var(--border); color: var(--text); background: var(--surface); min-height: 42px; white-space: nowrap; }
+.dock-btns .secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.dock-btns .primary { min-height: 42px; border-radius: 10px; font-size: 14px; }
+#msg { padding: 7px 10px; border-radius: 10px; background: var(--accent-soft); line-height: 1.3; }
+#msg.error { background: var(--danger-soft); }
+@media (prefers-reduced-motion: no-preference) { .more[open] > .more-body { animation: kpiIn .25s var(--ease) both; } }
+
+
+/* Biaya Admin: keterangan periode di atas tabel */
+.card .range-info { margin: 0 0 14px; font-weight: 500; color: var(--muted); }
+
+
+/* =====================================================================
+   Gerak tambahan v1.37 (juga mati otomatis bila sistem meminta "kurangi gerakan")
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  /* grafik perbandingan marketplace */
+  #cmpChart.draw rect.seg-bar { transform-box: view-box; animation: barGrow .7s var(--ease) both; animation-delay: calc(var(--i, 0) * 14ms); }
+  #cmpChart.draw path.cmp-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: lineDraw 1.1s .2s var(--ease) forwards; }
+  #cmpChart.draw path.all-line { animation: areaIn .8s .7s ease-out both; }
+  #cmpChart.draw circle.cmp-dot { transform-box: fill-box; transform-origin: center; animation: dotIn .35s ease-out both; animation-delay: calc(.5s + var(--i, 0) * 14ms); }
+
+  /* bilah target & titik impas tumbuh lagi saat nilainya berubah (setelah adegan pembuka) */
+  .grow .goal-fill, .grow .wf-fill { transform-origin: 0 50%; animation: fillX .7s var(--ease) both; }
+
+  /* tabel: baris masuk berurutan saat urutan / halaman berganti */
+  #rows.swap > tr { animation: rowIn .32s var(--ease) both; animation-delay: calc(var(--i, 0) * 18ms); }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* bar aksi pilih banyak baris, formulir target & biaya tetap: muncul meluncur halus */
+  .bulk-bar:not([hidden]) { animation: slideIn .22s var(--ease) both; }
+  .target-form:not([hidden]), .fixed-form:not([hidden]) { animation: slideIn .24s var(--ease) both; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  /* latar gelap dialog memudar masuk */
+  dialog[open]::backdrop { animation: fadeBackdrop .2s ease-out both; }
+  @keyframes fadeBackdrop { from { opacity: 0; } to { opacity: 1; } }
+}

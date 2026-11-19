@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu Produk</title>
+  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="polish.css">
+  <script src="chrome-shim.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="sticky-head" id="stickyHead">
+  <header class="top">
+      <div>
+        <h1>Menu Produk</h1>
+        <p class="muted">Harga kulakan dan harga jual tiap produk</p>
+      </div>
+      <div class="actions">
+        <button id="btnTemplate" type="button" class="ghost">Template Excel</button>
+        <button id="btnImport" type="button" class="ghost">Impor Excel</button>
+        <button id="btnExport" type="button" class="ghost">Ekspor Excel</button>
+        <input type="file" id="fileInput" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Menu">
+      <a href="report.html">Dashboard</a>
+      <a href="products.html" class="active" aria-current="page">Produk</a>
+      <a href="fees.html">Biaya Admin</a>
+      <a href="ads.html">Iklan &amp; Pajak</a>
+    </nav>
+  </div>
+
+  <div id="notice" role="status" class="notice" hidden></div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card">
+    <h2 id="formTitle">Tambah produk</h2>
+    <form id="pform" autocomplete="off" class="pform">
+      <label class="span2">Nama produk *<input type="text" id="pName" placeholder="mis. Kaos polos hitam L" required></label>
+      <label>SKU<input type="text" id="pSku" placeholder="opsional"></label>
+      <label>Kategori<input type="text" id="pCat" list="catList" placeholder="mis. Fashion"></label>
+      <datalist id="catList"></datalist>
+      <label>Harga kulakan (Rp) *<input type="number" id="pCost" min="0" step="any" required></label>
+      <label>Margin (%)<input type="number" id="pMargin" step="any" placeholder="isi untuk hitung harga jual"></label>
+      <label>Harga jual (Rp) *<input type="number" id="pPrice" min="0" step="any" required></label>
+      <label>Catatan<input type="text" id="pNote" placeholder="opsional"></label>
+      <div class="pform-foot wide">
+        <div id="pPreview" class="preview">Untung per unit: Rp 0</div>
+        <div class="pform-btns">
+          <button type="button" id="pCancel" class="ghost" hidden>Batal edit</button>
+          <button type="submit" id="pSave" class="primary">Simpan produk</button>
+        </div>
+      </div>
+      <p id="pMsg" role="status" class="wide pmsg"></p>
+    </form>
+  </section>
+
+  <section class="filters" aria-label="Filter">
+    <label class="grow">Cari produk<span class="q-wrap"><input type="search" id="q" placeholder="Nama, SKU, atau kategori…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qSuggest" aria-autocomplete="list"><ul id="qSuggest" class="q-suggest" role="listbox" hidden></ul></span></label>
+    <label>Kategori
+      <select id="catFilter"><option value="">Semua</option></select>
+    </label>
+    <label>Urutkan
+      <select id="sort">
+        <option value="name">Nama A–Z</option>
+        <option value="marginDesc">Margin tertinggi</option>
+        <option value="marginAsc">Margin terendah</option>
+        <option value="profitDesc">Total profit tertinggi</option>
+        <option value="soldDesc">Paling laku</option>
+        <option value="newest">Terbaru ditambahkan</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Daftar produk <span id="count" class="muted"></span></h2>
+      <button id="btnClear" type="button" class="danger">Hapus semua produk</button>
+    </div>
+    <div class="table-wrap">
+      <table class="zebra card-table">
+        <thead>
+          <tr>
+            <th>Produk</th><th>Kategori</th>
+            <th class="r">Harga kulakan</th><th class="r">Harga jual</th>
+            <th class="r">Untung / unit</th><th class="r">Margin</th>
+            <th class="r">Terjual</th><th class="r">Total profit</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p id="empty" class="empty" hidden>Belum ada produk. Tambahkan lewat form di atas atau impor Excel.</p>
+    <p class="sub">Untung / unit dan margin dihitung dari harga jual − harga kulakan, <strong>sebelum</strong> biaya admin marketplace. Terjual dan total profit diambil dari semua transaksi dengan nama produk yang sama (cocok berdasarkan nama, jadi bila nama produk diganti, riwayat lama tidak ikut terhitung); total profit sudah dipotong biaya admin, pajak, affiliate &amp; biaya proses, sebelum iklan.</p>
+  </section>
+
+  <script src="xlsx.js"></script>
+  <script src="shared.js"></script>
+  <script src="products.js"></script>
+  <script src="polish.js"></script>
+</body>
+</html>

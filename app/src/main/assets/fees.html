@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biaya Admin Marketplace</title>
+  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="polish.css">
+  <script src="chrome-shim.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="sticky-head" id="stickyHead">
+  <header class="top">
+      <div>
+        <h1>Biaya Admin Marketplace</h1>
+        <p class="muted">Biaya admin, affiliate, dan biaya proses pesanan tiap marketplace</p>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Menu">
+      <a href="report.html">Dashboard</a>
+      <a href="products.html">Produk</a>
+      <a href="fees.html" class="active" aria-current="page">Biaya Admin</a>
+      <a href="ads.html">Iklan &amp; Pajak</a>
+    </nav>
+  </div>
+
+  <div class="chips" id="chips" role="group" aria-label="Periode cepat">
+    <button type="button" data-p="today">Hari ini</button>
+    <button type="button" data-p="7d">7 hari</button>
+    <button type="button" data-p="30d">30 hari</button>
+    <button type="button" data-p="month">Bulan ini</button>
+    <button type="button" data-p="lastmonth">Bulan lalu</button>
+    <button type="button" data-p="all">Semua</button>
+  </div>
+
+  <section class="filters" aria-label="Filter periode">
+    <label>Periode
+      <select id="period">
+        <option value="today">Hari ini</option>
+        <option value="7d">7 hari terakhir</option>
+        <option value="30d">30 hari terakhir</option>
+        <option value="month" selected>Bulan ini</option>
+        <option value="lastmonth">Bulan lalu</option>
+        <option value="all">Semua</option>
+        <option value="custom">Pilih tanggal…</option>
+      </select>
+    </label>
+    <label id="fromWrap" hidden>Dari<input type="date" id="from"></label>
+    <label id="toWrap" hidden>Sampai<input type="date" id="to"></label>
+  </section>
+
+  <div id="notice" role="status" class="notice" hidden></div>
+
+  <section class="card">
+    <h2>Biaya per marketplace</h2>
+    <p class="sub range-info" id="rangeInfo" aria-live="polite"></p>
+    <form id="fform" autocomplete="off">
+      <div class="table-wrap">
+        <table class="fee-table">
+          <thead>
+            <tr class="grp">
+              <th rowspan="2" style="text-align:left;text-transform:none;font-size:12px;letter-spacing:0">Marketplace</th>
+              <th colspan="3" class="set sep">Pengaturan</th>
+              <th colspan="5" class="sep">Tercatat dari transaksi</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              <th class="r sep">Biaya admin (%)</th>
+              <th class="r">Affiliate (% omzet)</th>
+              <th class="r">Biaya proses (Rp/pesanan)</th>
+              <th class="r sep">Omzet</th>
+              <th class="r">Biaya admin</th>
+              <th class="r">Affiliate</th>
+              <th class="r">Biaya proses</th>
+              <th class="r">Rata-rata admin</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="pform-foot" style="margin-top:12px">
+        <p class="sub" style="margin:0;flex:1;min-width:260px">Biaya admin (%) terisi otomatis saat mencatat penjualan dan hanya berlaku untuk transaksi baru; kolom "Tercatat dari transaksi" mengikuti periode di atas. Untuk transaksi lama pakai tombol "Terapkan ke transaksi lama" (bila periode dipilih, tombolnya menjadi "Terapkan ke periode ini" dan hanya mengubah transaksi pada periode itu). Affiliate (% dari omzet) dan biaya proses pesanan (Rp per pesanan selesai; 1 resi = 1 pesanan) dihitung dari pengaturan terbaru untuk semua transaksi, dan ikut mengurangi profit bersih.</p>
+        <button type="submit" class="primary">Simpan</button>
+      </div>
+    </form>
+  </section>
+
+  <script src="shared.js"></script>
+  <script src="fees.js"></script>
+  <script src="polish.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'id.laporan.marketplace'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'id.laporan.marketplace'
+        minSdk 29
+        targetSdk 34
+        versionCode 14201
+        versionName '1.42.1'
+    }
+    buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iklan &amp; Pajak Marketplace</title>
+  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="polish.css">
+  <script src="chrome-shim.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="sticky-head" id="stickyHead">
+  <header class="top">
+      <div>
+        <h1>Iklan &amp; Pajak Marketplace</h1>
+        <p class="muted">Biaya iklan dan pajak ikut mengurangi profit bersih di Dashboard</p>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Menu">
+      <a href="report.html">Dashboard</a>
+      <a href="products.html">Produk</a>
+      <a href="fees.html">Biaya Admin</a>
+      <a href="ads.html" class="active" aria-current="page">Iklan &amp; Pajak</a>
+    </nav>
+  </div>
+
+  <div id="notice" role="status" class="notice" hidden></div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card">
+    <h2>Catat biaya iklan</h2>
+    <form id="aform" autocomplete="off" class="pform">
+      <label>Tanggal<input type="date" id="aDate" required></label>
+      <label>Marketplace<select id="aMp"></select></label>
+      <label>Biaya iklan (Rp) *<input type="number" id="aAmount" min="0.01" step="any" required></label>
+      <label>Catatan<input type="text" id="aNote" placeholder="mis. Shopee Ads / TikTok GMV Max"></label>
+      <div class="pform-foot wide">
+        <div id="aPreview" class="preview">Total dengan PPN iklan: Rp 0</div>
+        <button type="submit" class="primary">Simpan iklan</button>
+      </div>
+      <p id="aMsg" role="status" class="wide pmsg"></p>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Pengaturan pajak</h2>
+    <form id="tform" autocomplete="off">
+      <div class="pform" style="margin-bottom:12px">
+        <label class="span2">PPN atas biaya iklan (%)<input type="number" id="adTax" min="0" max="100" step="any" value="0"></label>
+      </div>
+      <div class="table-wrap">
+        <table class="tax-table">
+          <thead><tr><th>Marketplace</th><th class="r">Pajak dari omzet (%)</th></tr></thead>
+          <tbody id="taxRows"></tbody>
+        </table>
+      </div>
+      <div class="pform-foot" style="margin-top:12px">
+        <p class="sub" style="margin:0">Isi sesuai ketentuan pajak Anda (mis. PPh final UMKM). Pajak dihitung dari omzet pesanan selesai memakai persen yang tersimpan saat ini, jadi mengubahnya ikut mengubah laporan periode lama. Kosongkan (0) bila tidak dipakai.</p>
+        <button type="submit" class="primary">Simpan pajak</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Riwayat iklan <span id="count" class="muted"></span></h2>
+    <div class="table-wrap">
+      <table class="zebra card-table">
+        <thead>
+          <tr><th>Tanggal</th><th>Marketplace</th><th>Catatan</th><th class="r">Biaya iklan</th><th class="r">PPN</th><th></th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p id="empty" class="empty" hidden>Belum ada biaya iklan tercatat.</p>
+  </section>
+
+  <script src="shared.js"></script>
+  <script src="ads.js"></script>
+  <script src="polish.js"></script>
+</body>
+</html>
