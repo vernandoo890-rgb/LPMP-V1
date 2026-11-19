@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
-        web.loadUrl("file:///android_asset/popup.html");
+        web.loadUrl("file:///android_asset/order.html");
     }
 
     @Override protected void onActivityResult(int req, int res, Intent data) {
