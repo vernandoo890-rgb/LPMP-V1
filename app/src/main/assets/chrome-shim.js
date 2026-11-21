@@ -35,13 +35,7 @@
     },
     action: { onClicked: { addListener() {} } }
   };
-  // Tombol melayang "+ Order" di halaman selain Input Order.
-  document.addEventListener('DOMContentLoaded', () => {
-    if (/order\.html$/.test(location.pathname)) return;
-    const a = document.createElement('a'); a.href = 'order.html'; a.textContent = '＋ Order';
-    a.style.cssText = 'position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:99;background:#0f766e;color:#fff;font:700 15px sans-serif;padding:14px 18px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.3)';
-    document.body.appendChild(a);
-  });
+  // Navigasi: menu bawah dipasang oleh mobile.js.
   // Unduhan (ekspor Excel / cadangan JSON): kirim ke Android untuk disimpan di folder Download.
   const origClick = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = function () {

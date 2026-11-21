@@ -1,5 +1,8 @@
 const $ = id => document.getElementById(id);
 let products = [], settings = { fees: {} }, mp = 'Shopee', cart = [], feeTouched = false, recentIds = [];
+let lastAdded = null, newItem = -1, freshRecent = false, chipsDone = false;
+const MP_COLOR = { 'Shopee': '#ee4d2d', 'Tokopedia': '#03ac0e', 'TikTok Shop': '#25b5b0', 'Lazada': '#3b4cca', 'Blibli': '#0095da', 'Bukalapak': '#e31e52', 'Lainnya': '#8a94a6' };
+const DELSVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
 const lastKey = 'lm_recent_ids';
 const toNum = v => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
@@ -8,6 +11,7 @@ function el(html) { const t = document.createElement('template'); t.innerHTML = 
 
 async function init() {
   $('date').value = todayISO();
+  try { $('dateLbl').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) {}
   settings = await store.getSettings();
   products = await store.getProducts();
   mp = settings.lastMarketplace && MARKETPLACES.includes(settings.lastMarketplace) ? settings.lastMarketplace : MARKETPLACES[0];
@@ -27,10 +31,12 @@ async function init() {
 function renderChips() {
   $('mpChips').innerHTML = '';
   MARKETPLACES.forEach(m => {
-    const b = el(`<button type="button" class="chip${m === mp ? ' on' : ''}" role="radio" aria-checked="${m === mp}">${escapeHtml(m)}</button>`);
+    const b = el(`<button type="button" class="chip${m === mp ? ' on' : ''}" role="radio" aria-checked="${m === mp}"><i class="dot" style="--c:${MP_COLOR[m] || '#8a94a6'}"></i>${escapeHtml(m)}</button>`);
     b.onclick = () => { mp = m; feeTouched = false; renderChips(); applyFee(); checkDup(); };
     $('mpChips').appendChild(b);
   });
+  const on = $('mpChips').querySelector('.chip.on');
+  if (on && on.scrollIntoView) setTimeout(() => { try { on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: chipsDone ? 'smooth' : 'auto' }); } catch (e) {} chipsDone = true; }, 0);
 }
 function applyFee() {
   if (feeTouched) return;
@@ -47,7 +53,8 @@ function renderTiles() {
   if (!list.length) { box.innerHTML = '<div class="empty">Produk tidak ditemukan.</div>'; return; }
   list.forEach(p => {
     const inCart = cart.find(c => productKey(c.name) === productKey(p.name));
-    const t = el(`<button type="button" class="tile"><b>${escapeHtml(p.name)}</b><small>${p.price ? rupiah(p.price) : 'harga belum diisi'}</small>${inCart ? `<span class="bdg">${inCart.qty}</span>` : ''}</button>`);
+    const mg = p.price > 0 && p.cost > 0 && p.price > p.cost ? Math.round((p.price - p.cost) / p.price * 100) : 0;
+    const t = el(`<button type="button" class="tile${inCart ? ' in' : ''}${inCart && lastAdded === productKey(p.name) ? ' bump' : ''}"><b>${escapeHtml(p.name)}</b><span class="pr"><small>${p.price ? rupiah(p.price) : 'harga belum diisi'}</small>${mg ? `<span class="mg">${mg}%</span>` : ''}</span>${inCart ? `<span class="bdg">${inCart.qty}</span>` : ''}</button>`);
     t.onclick = () => addProduct(p);
     box.appendChild(t);
   });
@@ -56,17 +63,19 @@ function renderTiles() {
 function addProduct(p) {
   const ex = cart.find(c => productKey(c.name) === productKey(p.name));
   if (ex) ex.qty += 1;
-  else cart.push({ name: p.name, qty: 1, price: toNum(p.price), cogs: toNum(p.cost) });
-  renderCart(); renderTiles();
+  else { cart.push({ name: p.name, qty: 1, price: toNum(p.price), cogs: toNum(p.cost) }); newItem = cart.length - 1; }
+  lastAdded = productKey(p.name);
+  if (navigator.vibrate) navigator.vibrate(8);
+  renderCart(); renderTiles(); newItem = -1;
 }
 
 function renderCart() {
   const box = $('cart'); box.innerHTML = '';
   $('cartCount').textContent = cart.length ? `(${cart.length} produk)` : '';
-  if (!cart.length) box.innerHTML = '<div class="none">Belum ada produk. Ketuk produk di atas.</div>';
+  if (!cart.length) box.innerHTML = '<div class="none">🛒 Belum ada produk. Ketuk produk di atas.</div>';
   cart.forEach((c, i) => {
-    const d = el(`<div class="item">
-      <div class="top"><b>${escapeHtml(c.name)}</b><button type="button" class="del" aria-label="Hapus">✕</button></div>
+    const d = el(`<div class="item${i === newItem ? ' new' : ''}">
+      <div class="top"><b>${escapeHtml(c.name)}</b><button type="button" class="del" aria-label="Hapus">${DELSVG}</button></div>
       <div class="grid">
         <div class="step"><button type="button" data-a="-">−</button><input type="number" inputmode="numeric" min="1" value="${c.qty}" data-f="qty" aria-label="Jumlah"><button type="button" data-a="+">+</button></div>
         <label>Harga jual/unit<input type="number" inputmode="numeric" min="0" step="any" value="${c.price || ''}" data-f="price" placeholder="Rp"></label>
@@ -74,8 +83,8 @@ function renderCart() {
       </div><div class="sub"></div></div>`);
     const sub = () => { d.querySelector('.sub').textContent = 'Subtotal ' + rupiah(c.qty * c.price); };
     sub();
-    d.querySelector('.del').onclick = () => { cart.splice(i, 1); renderCart(); renderTiles(); };
-    d.querySelectorAll('button[data-a]').forEach(b => b.onclick = () => { c.qty = Math.max(1, c.qty + (b.dataset.a === '+' ? 1 : -1)); renderCart(); renderTiles(); });
+    d.querySelector('.del').onclick = () => { lastAdded = null; cart.splice(i, 1); renderCart(); renderTiles(); };
+    d.querySelectorAll('button[data-a]').forEach(b => b.onclick = () => { c.qty = Math.max(1, c.qty + (b.dataset.a === '+' ? 1 : -1)); lastAdded = null; renderCart(); renderTiles(); });
     d.querySelectorAll('input[data-f]').forEach(inp => {
       inp.addEventListener('focus', () => setTimeout(() => inp.select(), 0));
       inp.addEventListener('input', () => { c[inp.dataset.f] = inp.dataset.f === 'qty' ? Math.max(1, Math.floor(Number(inp.value)) || 1) : toNum(inp.value); sub(); update(); });
@@ -102,7 +111,7 @@ function update() {
   $('tRev').textContent = rupiah(rev); $('tCost').textContent = rupiah(cost); $('tProfit').textContent = rupiah(profit);
   const ok = cart.length > 0 && cart.every(c => c.price > 0);
   $('saveBtn').disabled = !ok;
-  $('saveBtn').textContent = cart.length && !ok ? 'Isi harga jual semua produk' : 'Simpan Order';
+  if (!$('saveBtn').classList.contains('ok')) $('saveTxt').textContent = cart.length && !ok ? 'Isi harga jual semua produk' : 'Simpan Order';
 }
 
 async function checkDup() {
@@ -132,8 +141,10 @@ async function save() {
     recentIds = recentIds.slice(0, 5);
     try { localStorage.setItem(lastKey, JSON.stringify(recentIds)); } catch (e) {}
     cart = []; $('orderNo').value = ''; $('otherCost').value = 0; $('status').value = 'selesai'; $('dupWarn').hidden = true; feeTouched = false;
+    lastAdded = null; freshRecent = true;
     renderCart(); renderTiles(); applyFee(); renderRecent(); refreshToday();
     msg('✓ Order tersimpan');
+    const sb = $('saveBtn'); sb.classList.add('ok'); $('saveTxt').textContent = 'Tersimpan'; setTimeout(() => { sb.classList.remove('ok'); update(); }, 1300);
     if (navigator.vibrate) navigator.vibrate(30);
   } catch (e) { msg('Gagal menyimpan: ' + e.message, true); }
   update();
@@ -143,7 +154,7 @@ function renderRecent() {
   const ul = $('recentList'); ul.innerHTML = '';
   $('recent').hidden = !recentIds.length;
   recentIds.forEach((r, i) => {
-    const li = el(`<li><span><b>${escapeHtml(r.no)}</b> · ${escapeHtml(r.mp)}<small>${r.n} produk · ${rupiah(r.rev)}</small></span><button type="button">Batalkan</button></li>`);
+    const li = el(`<li${i === 0 && freshRecent ? ' class="fresh"' : ''}><span><b>${escapeHtml(r.no)}</b> · ${escapeHtml(r.mp)}<small>${r.n} produk · ${rupiah(r.rev)}</small></span><button type="button">Batalkan</button></li>`);
     li.querySelector('button').onclick = async () => {
       if (!confirm('Hapus order ini dari catatan?')) return;
       await store.withLock(async () => { const all = (await store.getSales()).filter(s => !r.ids.includes(s.id)); await store.setSales(all); });
@@ -152,6 +163,7 @@ function renderRecent() {
     };
     ul.appendChild(li);
   });
+  freshRecent = false;
 }
 
 async function refreshToday() {
@@ -160,6 +172,8 @@ async function refreshToday() {
   const orders = new Set(list.map((s, i) => orderKeyOf(s) || 'x' + i)).size;
   let rev = 0, profit = 0; const pm = netProfitMap(list, settings);
   list.forEach(s => { rev += calc(s).revenue; profit += pm.get(s) || 0; });
+  const isToday = d === todayISO();
+  $('tdLabel').textContent = isToday ? 'Profit hari ini' : 'Profit ' + d.split('-').reverse().join('/');
   $('tdOrders').textContent = orders; $('tdRev').textContent = rupiah(rev); $('tdProfit').textContent = rupiah(profit);
 }
 init();

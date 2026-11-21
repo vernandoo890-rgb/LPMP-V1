@@ -6,61 +6,80 @@
   <title>Input Order</title>
   <link rel="stylesheet" href="popup.css">
   <link rel="stylesheet" href="polish.css">
+  <link rel="stylesheet" href="mobile.css">
   <link rel="stylesheet" href="order.css">
   <script src="chrome-shim.js"></script>
   <script src="theme.js"></script>
 </head>
 <body class="ord">
-  <header>
-    <h1>Input Order</h1>
-    <div class="sumbar"><span>Hari ini: <b id="tdOrders">0</b> pesanan</span><span>Omzet <b id="tdRev">Rp 0</b></span><span>Profit <b id="tdProfit">Rp 0</b></span></div>
+  <header class="appbar">
+    <div class="ab-row">
+      <div class="ab-title"><h1>Input Order</h1><small id="dateLbl"></small></div>
+    </div>
+    <div class="hero" aria-label="Ringkasan hari ini">
+      <div class="hero-main"><span id="tdLabel">Profit hari ini</span><b id="tdProfit">Rp 0</b></div>
+      <div class="hero-side">
+        <div><span>Pesanan</span><b id="tdOrders">0</b></div>
+        <div><span>Omzet</span><b id="tdRev">Rp 0</b></div>
+      </div>
+    </div>
   </header>
 
   <main>
-    <p class="lbl">Marketplace</p>
-    <div id="mpChips" class="chips" role="radiogroup" aria-label="Marketplace"></div>
-
-    <div class="row2">
-      <label>Tanggal<input type="date" id="date"></label>
-      <label>Resi / No. pesanan<input type="text" id="orderNo" maxlength="80" placeholder="opsional" autocomplete="off"></label>
-    </div>
-    <div id="dupWarn" class="hint warn" hidden></div>
-
-    <p class="lbl">Pilih produk <small>(ketuk untuk menambah)</small></p>
-    <input type="search" id="pSearch" placeholder="Cari produk dari menu Produk…" autocomplete="off">
-    <div id="tiles" class="tiles"></div>
-    <button type="button" id="manualBtn" class="ghost">＋ Produk manual (tidak ada di menu)</button>
-
-    <p class="lbl">Isi pesanan <small id="cartCount"></small></p>
-    <div id="cart" class="cart"></div>
-
-    <details class="more">
-      <summary>Biaya &amp; status</summary>
+    <section class="card">
+      <h2 class="lbl"><i class="n">1</i>Marketplace</h2>
+      <div id="mpChips" class="chips" role="radiogroup" aria-label="Marketplace"></div>
       <div class="row2">
-        <label>Biaya admin (%)<input type="number" id="feePct" min="0" max="100" step="any" value="0" inputmode="decimal"></label>
-        <label>Biaya lain (Rp)<input type="number" id="otherCost" min="0" step="any" value="0" inputmode="numeric"></label>
+        <label>Tanggal<input type="date" id="date"></label>
+        <label>Resi / No. pesanan<input type="text" id="orderNo" maxlength="80" placeholder="opsional" autocomplete="off"></label>
       </div>
-      <label>Status
-        <select id="status"><option value="selesai">Selesai</option><option value="dibatalkan">Dibatalkan</option><option value="dikembalikan">Dikembalikan</option></select>
-      </label>
-    </details>
+      <div id="dupWarn" class="hint warn" hidden></div>
+    </section>
 
-    <section id="recent" class="recent" hidden>
-      <p class="lbl">Order terakhir dicatat</p>
+    <section class="card">
+      <h2 class="lbl"><i class="n">2</i>Pilih produk <small>ketuk untuk menambah</small></h2>
+      <input type="search" id="pSearch" placeholder="Cari produk dari menu Produk…" autocomplete="off">
+      <div id="tiles" class="tiles"></div>
+      <button type="button" id="manualBtn" class="ghost">＋ Produk manual</button>
+    </section>
+
+    <section class="card">
+      <h2 class="lbl"><i class="n">3</i>Isi pesanan <small id="cartCount"></small></h2>
+      <div id="cart" class="cart"></div>
+      <details class="more">
+        <summary><span>Biaya &amp; status</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="row2">
+          <label>Biaya admin (%)<input type="number" id="feePct" min="0" max="100" step="any" value="0" inputmode="decimal"></label>
+          <label>Biaya lain (Rp)<input type="number" id="otherCost" min="0" step="any" value="0" inputmode="numeric"></label>
+        </div>
+        <label>Status
+          <select id="status"><option value="selesai">Selesai</option><option value="dibatalkan">Dibatalkan</option><option value="dikembalikan">Dikembalikan</option></select>
+        </label>
+      </details>
+    </section>
+
+    <section id="recent" class="card recent" hidden>
+      <h2 class="lbl"><i class="n ok">✓</i>Order terakhir dicatat</h2>
       <ul id="recentList"></ul>
     </section>
   </main>
 
   <footer class="dock">
-    <div class="tot"><div><span>Omzet</span><b id="tRev">Rp 0</b></div><div><span>Biaya+Modal</span><b id="tCost">Rp 0</b></div><div class="pf"><span>Profit</span><b id="tProfit">Rp 0</b></div></div>
     <div id="msg" role="status" aria-live="polite"></div>
-    <button type="button" id="saveBtn" class="primary big" disabled>Simpan Order</button>
-    <nav class="bnav" aria-label="Menu">
-      <a href="order.html" class="on">Order</a><a href="popup.html">Cari/Edit</a><a href="report.html">Dashboard</a><a href="products.html">Produk</a><a href="fees.html">Biaya</a><a href="ads.html">Iklan</a>
-    </nav>
+    <div class="tot">
+      <div><span>Omzet</span><b id="tRev">Rp 0</b></div>
+      <div><span>Biaya + modal</span><b id="tCost">Rp 0</b></div>
+      <div class="pf"><span>Profit</span><b id="tProfit">Rp 0</b></div>
+    </div>
+    <button type="button" id="saveBtn" class="primary big" disabled>
+      <svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <span id="saveTxt">Simpan Order</span>
+    </button>
   </footer>
+  <nav class="bnav" aria-label="Menu"></nav>
 
   <script src="shared.js"></script>
   <script src="order.js"></script>
+  <script src="mobile.js"></script>
 </body>
 </html>
