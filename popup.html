@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cari / Edit Order</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="polish.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="chrome-shim.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Cari / Edit Order</h1>
+    <nav class="links" aria-label="Buka halaman">
+      <button id="openReport" class="link" type="button" title="Buka di tab baru">Dashboard</button>
+      <button id="openProducts" class="link" type="button" title="Buka di tab baru">Produk</button>
+      <button id="openFees" class="link" type="button" title="Buka di tab baru">Biaya admin</button>
+      <button id="openAds" class="link" type="button" title="Buka di tab baru">Iklan &amp; pajak</button>
+    </nav>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><span id="dayLabel">Omzet hari ini</span><strong id="todayRevenue">Rp 0</strong><small id="todayOrders">0 pesanan</small></div>
+    <div class="stat"><span id="dayProfitLabel">Profit hari ini</span><strong id="todayProfit">Rp 0</strong><small id="todayMargin">Margin 0%</small></div>
+    <div class="stat"><span id="monthLabel">Profit bulan ini</span><strong id="monthProfit">Rp 0</strong><small id="monthRevenue">Omzet Rp 0</small></div>
+  </section>
+
+  <section class="search">
+    <label class="srch"><span class="sr">Cari resi, nomor pesanan, atau produk</span><input type="search" id="orderSearch" placeholder="Cari resi / no. pesanan / produk"></label>
+    <ul id="searchResults" class="results" hidden></ul>
+  </section>
+
+  <div id="editBar" class="editbar" role="status" hidden><span id="editText"></span><span class="edit-btns"><button type="button" id="editDelete" class="link-btn danger">Hapus pesanan</button><button type="button" id="editCancel" class="link-btn">Batal edit</button></span></div>
+
+  <form id="form" autocomplete="off">
+    <h2 class="sr">Catat penjualan</h2>
+    <div class="row">
+      <label>Tanggal<input type="date" id="date" required></label>
+      <label>Marketplace<select id="marketplace"></select></label>
+    </div>
+    <p class="sec">Produk &amp; pesanan</p>
+    <div class="field combo">
+      <label for="product">Nama produk</label>
+      <input type="text" id="product" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="productList" autocomplete="off" placeholder="ketik atau pilih dari menu produk" required>
+      <ul id="productList" class="combo-list" role="listbox" aria-label="Daftar produk" hidden></ul>
+    </div>
+    <div id="productHint" class="hint" hidden></div>
+    <label>Resi / No. pesanan<input type="text" id="orderNo" maxlength="80" placeholder="isi bila 1 resi berisi beberapa produk"></label>
+    <div id="orderDup" class="hint warn" hidden></div>
+    <label id="saveProductWrap" class="check" hidden><input type="checkbox" id="saveProduct"> Simpan produk ini ke menu produk</label>
+    <p class="sec">Harga &amp; biaya</p>
+    <div class="row">
+      <label>Qty<input type="number" id="qty" min="1" step="1" value="1" required></label>
+      <label>Harga jual / unit (Rp)<input type="number" id="price" min="0.01" step="any" data-money></label>
+    </div>
+    <div class="row">
+      <label>Harga kulakan / unit (Rp)<input type="number" id="cogs" min="0" step="any" value="0" data-money></label>
+      <label>Biaya admin (%)<input type="number" id="feePct" min="0" max="100" step="any" value="0"></label>
+    </div>
+    <details id="more" class="more">
+      <summary><span>Opsi lainnya</span><i id="moreBadge" hidden>terisi</i><small>omzet marketplace, biaya lain, status</small></summary>
+      <div class="more-body">
+        <label>Omzet tertera di marketplace (Rp)<input type="number" id="omzetMp" min="0" step="any" placeholder="total produk ini, belum dikurangi kulakan" data-money></label>
+        <div class="hint" id="omzetHint">Opsional. Bila diisi, dipakai sebagai omzet produk ini (menggantikan qty × harga jual).</div>
+        <div class="row">
+          <label>Biaya lain (Rp)<input type="number" id="otherCost" min="0" step="any" value="0"></label>
+          <label>Status
+            <select id="status">
+              <option value="selesai">Selesai</option>
+              <option value="dibatalkan">Dibatalkan</option>
+              <option value="dikembalikan">Dikembalikan</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </details>
+    <div class="actionbar">
+      <div id="msg" role="status" aria-live="polite"></div>
+      <div id="preview" class="preview" aria-live="polite">Profit perkiraan Rp 0</div>
+      <div class="dock-btns">
+        <button type="button" id="addMore" class="secondary" title="Simpan produk ini, lalu isi produk berikutnya di resi yang sama (isi Resi / No. pesanan dulu)">＋ Produk lain</button>
+        <button type="submit" class="primary"><span id="saveLabel">Simpan</span> <kbd>Ctrl+Enter</kbd></button>
+      </div>
+    </div>
+  </form>
+
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+  <script src="polish.js"></script>
+  <script src="mobile.js"></script>
+</body>
+</html>

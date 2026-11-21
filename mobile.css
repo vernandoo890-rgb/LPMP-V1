@@ -1,0 +1,106 @@
+/* =====================================================================
+   Mobile v2 — lapisan desain khusus aplikasi HP (dimuat paling akhir).
+   Navigasi bawah berikon, kartu, transisi halaman. Animasi mati otomatis
+   bila sistem meminta "kurangi gerakan".
+   ===================================================================== */
+:root {
+  --bg-soft: #f2f5f6;
+  --card-sh: 0 1px 2px rgba(16, 24, 40, .05), 0 10px 26px -14px rgba(16, 24, 40, .18);
+  --nav-h: calc(66px + env(safe-area-inset-bottom));
+  --ok: #067647;
+  --ok-soft: #e6f6ee;
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --g1: #14b8a6; --g2: #0f766e; --g3: #0b5f58;
+}
+:root[data-theme="dark"] {
+  --bg-soft: #0b1015; --card-sh: 0 1px 2px rgba(0,0,0,.45), 0 12px 28px -16px rgba(0,0,0,.75);
+  --ok: #4ade80; --ok-soft: #123524; --g1: #2dd4bf; --g2: #14a99b; --g3: #0f766e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-soft: #0b1015; --card-sh: 0 1px 2px rgba(0,0,0,.45), 0 12px 28px -16px rgba(0,0,0,.75);
+    --ok: #4ade80; --ok-soft: #123524; --g1: #2dd4bf; --g2: #14a99b; --g3: #0f766e;
+  }
+}
+
+html { -webkit-tap-highlight-color: transparent; background: var(--bg-soft); }
+body { background-color: var(--bg-soft); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overscroll-behavior-y: none; }
+button, a { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+body:not(.ord) { padding-bottom: calc(var(--nav-h) + 22px); }
+
+/* Navigasi atas diganti menu bawah (elemen tetap ada supaya skrip lama tidak rusak) */
+.tabs, nav.links { display: none !important; }
+#toTop { bottom: calc(var(--nav-h) + 14px) !important; }
+.primary kbd { display: none; }
+
+/* Tombol tema: bulat, hanya ikon */
+.theme-toggle .theme-label { display: none; }
+.theme-toggle { width: 42px; height: 42px; min-height: 42px; padding: 0 !important; border-radius: 50% !important; display: inline-grid; place-items: center; flex: none; }
+
+/* ---------- Menu bawah ---------- */
+.bnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; margin: 0 auto; max-width: 640px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  box-shadow: 0 -10px 30px -18px rgba(16, 24, 40, .35);
+}
+.bnav a {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 2px 0 0;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .01em; color: var(--muted); text-decoration: none; background: none; border-radius: 12px;
+  transition: color .2s var(--ease), transform .15s var(--ease);
+}
+.bnav a:active { transform: scale(.92); }
+.bnav .ic { display: grid; place-items: center; width: 54px; height: 30px; border-radius: 15px; transition: background .28s var(--ease), width .28s var(--ease); }
+.bnav .ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.bnav a.on { color: var(--accent); background: none; }
+.bnav a.on .ic { background: var(--accent-soft); }
+.bnav a.on .ic svg { stroke-width: 2.3; }
+@media (prefers-reduced-motion: no-preference) {
+  .bnav a.on .ic svg { animation: navPop .55s var(--ease); }
+  @keyframes navPop { 0% { transform: scale(.7); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+}
+
+/* ---------- Masuk halaman (jangan beri transform pada body: elemen fixed jadi ikut tergulir) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  body { animation: pageFade .3s ease-out backwards; }
+  body > *:not(.bnav):not(.dock):not(script):not(#toTop) { animation: pageRise .45s var(--ease) backwards; }
+  @keyframes pageFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pageRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  html.leaving body { opacity: 0; transition: opacity .15s ease-in; }
+}
+
+/* ---------- Kartu & bentuk umum di halaman lain ---------- */
+body:not(.ord) .card { border-radius: 18px; box-shadow: var(--card-sh); border-color: color-mix(in srgb, var(--border) 60%, transparent); }
+body:not(.ord) .kpi { border-radius: 16px; box-shadow: var(--card-sh); }
+body:not(.ord) .stat { border-radius: 16px; box-shadow: var(--card-sh); border: 1px solid color-mix(in srgb, var(--border) 60%, transparent); background: var(--bg); }
+body:not(.ord) header.top, body:not(.ord) .sticky-head { background: color-mix(in srgb, var(--bg-soft) 86%, transparent); }
+body:not(.ord) h1 { font-size: 19px; }
+body:not(.ord) input, body:not(.ord) select { background: var(--bg); }
+body:not(.ord) .primary { background: linear-gradient(135deg, var(--g2), var(--g3)); border-color: transparent; color: #fff; }
+:root[data-theme="dark"] body:not(.ord) .primary { color: #04201d; background: linear-gradient(135deg, var(--g1), var(--g2)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body:not(.ord) .primary { color: #04201d; background: linear-gradient(135deg, var(--g1), var(--g2)); } }
+
+/* Halaman Cari/Edit: ringkasan hari ini rapi di HP */
+body:not(.ord) .stats { gap: 8px; }
+body:not(.ord) .stat strong { letter-spacing: -.02em; }
+
+/* Keyboard terbuka */
+html.kb .bnav { display: none; }
+html.kb .dock { bottom: 0; }
+@media (max-height: 560px) { html.kb .dock { display: none; } }
+
+/* Logo header = ikon aplikasi baru */
+body:not(.ord) h1::before { background: url("icons/icon128.png") center / cover no-repeat; border-radius: 9px; box-shadow: 0 4px 12px -3px rgba(15,118,110,.55); }
+
+/* Layar sangat sempit (<= 340px): cegah menu bawah dan header meluber */
+@media (max-width: 340px) {
+  html, body { overflow-x: hidden; }
+  .bnav a { min-width: 0; padding-left: 2px; padding-right: 2px; font-size: 10px; }
+  .bnav a span:last-child { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  header, header h1, .stats, .stat { max-width: 100%; min-width: 0; }
+  header { flex-wrap: wrap; }
+}
+@media (max-width: 340px) { body { min-width: 0 !important; } }

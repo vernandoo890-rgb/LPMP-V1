@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Laporan Penjualan</title>
+  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="polish.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="chrome-shim.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="sticky-head" id="stickyHead">
+  <header class="top">
+      <div>
+        <h1>Laporan Penjualan Marketplace</h1>
+        <p id="rangeLabel" class="muted"></p>
+      </div>
+      <div class="actions">
+        <button id="btnTemplate" type="button" class="ghost">Template Excel</button>
+        <button id="btnImport" type="button" class="ghost" title="Impor file Excel: template sendiri atau Laporan Penghasilan Shopee">Impor Excel</button>
+        <button id="btnExport" type="button" class="ghost">Ekspor Excel</button>
+        <button id="btnPrint" type="button" class="ghost">Cetak / PDF</button>
+        <button id="btnBackup" type="button" class="ghost" title="Simpan semua data (transaksi, iklan, produk, pengaturan) ke satu file JSON">Cadangkan</button>
+        <button id="btnRestore" type="button" class="ghost" title="Pulihkan dari file cadangan JSON (digabung, tidak menghapus data sekarang)">Pulihkan</button>
+        <input type="file" id="fileInput" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+        <input type="file" id="restoreInput" accept=".json,application/json" hidden>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Menu">
+      <a href="report.html" class="active" aria-current="page">Dashboard</a>
+      <a href="products.html">Produk</a>
+      <a href="fees.html">Biaya Admin</a>
+      <a href="ads.html">Iklan &amp; Pajak</a>
+    </nav>
+  </div>
+
+  <div class="chips" id="chips" role="group" aria-label="Periode cepat">
+    <button type="button" data-p="today">Hari ini</button>
+    <button type="button" data-p="7d">7 hari</button>
+    <button type="button" data-p="30d">30 hari</button>
+    <button type="button" data-p="month">Bulan ini</button>
+    <button type="button" data-p="lastmonth">Bulan lalu</button>
+    <button type="button" data-p="all">Semua</button>
+  </div>
+
+  <section class="filters" aria-label="Filter">
+    <label>Periode
+      <select id="period">
+        <option value="today">Hari ini</option>
+        <option value="7d">7 hari terakhir</option>
+        <option value="30d">30 hari terakhir</option>
+        <option value="month" selected>Bulan ini</option>
+        <option value="lastmonth">Bulan lalu</option>
+        <option value="all">Semua</option>
+        <option value="custom">Pilih tanggal…</option>
+      </select>
+    </label>
+    <label id="fromWrap" hidden>Dari<input type="date" id="from"></label>
+    <label id="toWrap" hidden>Sampai<input type="date" id="to"></label>
+    <label>Marketplace
+      <select id="mp"><option value="">Semua</option></select>
+    </label>
+    <label class="grow">Cari produk / resi / no. pesanan<span class="q-wrap"><input type="search" id="q" placeholder="Nama produk, nomor resi, atau nomor pesanan…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qSuggest" aria-autocomplete="list"><ul id="qSuggest" class="q-suggest" role="listbox" hidden></ul></span></label>
+  </section>
+
+  <div id="notice" role="status" class="notice" hidden></div>
+
+  <div id="backupBar" class="backup-bar" role="status" hidden>
+    <span id="backupText"></span>
+    <span class="backup-btns">
+      <button type="button" id="backupNow" class="primary">Cadangkan sekarang</button>
+      <button type="button" id="backupLater" class="ghost" title="Ingatkan lagi 3 hari lagi">Nanti</button>
+    </span>
+  </div>
+
+  <section class="kpis" id="kpis" aria-busy="true"><div class="kpi skel" aria-hidden="true"><span>&nbsp;</span><strong>&nbsp;</strong><small>&nbsp;</small></div><div class="kpi skel" aria-hidden="true"><span>&nbsp;</span><strong>&nbsp;</strong><small>&nbsp;</small></div><div class="kpi skel" aria-hidden="true"><span>&nbsp;</span><strong>&nbsp;</strong><small>&nbsp;</small></div><div class="kpi skel" aria-hidden="true"><span>&nbsp;</span><strong>&nbsp;</strong><small>&nbsp;</small></div></section>
+
+  <section class="card" id="grossCard">
+    <div class="card-head">
+      <h2>Profit kotor</h2>
+      <span class="muted gross-sub">sebelum dikurangi harga kulakan (modal)</span>
+    </div>
+    <div id="grossBody"></div>
+    <p class="sub">Profit kotor = omzet − biaya marketplace (biaya admin, affiliate, biaya proses pesanan, dan biaya lain per pesanan). Harga kulakan (modal), pajak, dan iklan baru dikurangkan sesudahnya sampai menjadi Profit bersih.</p>
+  </section>
+
+  <div class="two goals">
+    <section class="card" id="targetCard">
+      <div class="card-head">
+        <h2>Target bulan ini</h2>
+        <button type="button" id="btnTarget" class="ghost" aria-expanded="false" aria-controls="targetForm">Atur target</button>
+      </div>
+      <form id="targetForm" class="target-form" hidden autocomplete="off">
+        <label>Target omzet (Rp)<input type="number" id="tgtRevenue" min="0" step="1000" inputmode="numeric" placeholder="mis. 10000000"></label>
+        <label>Target profit bersih (Rp)<input type="number" id="tgtProfit" min="0" step="1000" inputmode="numeric" placeholder="mis. 2000000"></label>
+        <div class="target-btns"><button type="submit" class="primary">Simpan</button><button type="button" id="tgtCancel" class="ghost">Batal</button></div>
+      </form>
+      <div id="targetBody"></div>
+    </section>
+    <section class="card" id="alertCard">
+      <h2>Perlu perhatian</h2>
+      <div id="alerts"></div>
+      <p class="sub">Produk dengan margin di bawah 10% atau rugi pada periode yang dipilih (setelah biaya admin, modal, pajak, affiliate &amp; biaya proses).</p>
+    </section>
+  </div>
+
+  <section class="card" id="fixedCard">
+    <div class="card-head">
+      <h2>Biaya tetap &amp; titik impas</h2>
+      <button type="button" id="btnFixed" class="ghost" aria-expanded="false" aria-controls="fixedForm">Atur biaya tetap</button>
+    </div>
+    <form id="fixedForm" class="fixed-form" hidden autocomplete="off">
+      <ul id="fixedList" class="fixed-list"></ul>
+      <div class="fixed-add">
+        <input id="fxName" type="text" maxlength="60" placeholder="Nama biaya (mis. Sewa, Gaji, Internet)" aria-label="Nama biaya tetap">
+        <input id="fxAmount" type="number" min="0" step="1000" inputmode="numeric" placeholder="Rp per bulan" aria-label="Jumlah per bulan">
+        <button type="submit" class="primary">Tambah</button>
+        <button type="button" id="fxDone" class="ghost">Selesai</button>
+      </div>
+    </form>
+    <div id="fixedBody"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Omzet &amp; profit</h2>
+      <div class="seg" id="chartMode" role="group" aria-label="Tampilan grafik">
+        <button type="button" data-mode="both" aria-pressed="true">Keduanya</button>
+        <button type="button" data-mode="revenue" aria-pressed="false">Omzet</button>
+        <button type="button" data-mode="profit" aria-pressed="false">Profit</button>
+      </div>
+    </div>
+    <div class="legend"><span><i class="sw rev"></i>Omzet</span><span><i class="sw pro"></i>Profit (sebelum iklan &amp; pajak)</span></div>
+    <div id="trend" class="chart"></div>
+  </section>
+
+  <section class="card" id="cmpCard">
+    <div class="card-head">
+      <h2>Perbandingan marketplace</h2>
+      <div class="seg" id="cmpMode" role="group" aria-label="Tampilan perbandingan">
+        <button type="button" data-mode="mp" aria-pressed="true">Omzet</button>
+        <button type="button" data-mode="margin" aria-pressed="false">Margin</button>
+      </div>
+    </div>
+    <div class="legend" id="cmpLegend"></div>
+    <div id="cmpChart" class="chart"></div>
+    <p class="sub" id="cmpNote"></p>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Per marketplace</h2>
+      <div id="byMp"></div>
+      <p class="sub">Profit = setelah biaya admin, modal, pajak, affiliate &amp; biaya proses (sebelum iklan).</p>
+    </section>
+    <section class="card">
+      <h2>Produk terlaris</h2>
+      <div id="topProducts"></div>
+      <p class="sub">Profit dihitung sama seperti di samping (sebelum iklan).</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Transaksi <span id="count" class="muted"></span></h2>
+      <button id="btnClear" type="button" class="danger">Hapus semua data</button>
+    </div>
+    <div id="bulkBar" class="bulk-bar" role="region" aria-label="Aksi untuk transaksi terpilih" hidden>
+      <span id="bulkInfo" class="bulk-info"></span>
+      <button type="button" id="bulkAllFiltered" class="ghost" hidden></button>
+      <label class="bulk-status">Ubah status
+        <select id="bulkStatusSel"><option value="">Pilih…</option><option value="selesai">selesai</option><option value="dibatalkan">dibatalkan</option><option value="dikembalikan">dikembalikan</option></select>
+      </label>
+      <button type="button" id="bulkDelete" class="danger">Hapus terpilih</button>
+      <button type="button" id="bulkClear" class="ghost">Batal pilih</button>
+    </div>
+    <div class="m-tools">
+    <label class="m-selall"><input type="checkbox" id="mSelAll"> <span>Pilih semua</span></label>
+    <label class="m-sort">Urutkan
+      <select id="mSort">
+        <option value="date:desc">Tanggal terbaru</option><option value="date:asc">Tanggal terlama</option>
+        <option value="revenue:desc">Omzet tertinggi</option><option value="profit:desc">Profit tertinggi</option>
+        <option value="profit:asc">Profit terendah</option><option value="product:asc">Produk A–Z</option>
+      </select>
+    </label>
+    </div>
+    <div class="table-wrap">
+      <table class="zebra tx-table">
+        <thead>
+          <tr>
+            <th class="sel"><input type="checkbox" id="selAll" aria-label="Pilih semua baris di halaman ini"></th><th data-sort="date">Tanggal</th><th data-sort="marketplace">Marketplace</th><th data-sort="product">Produk</th><th data-sort="orderNo">Resi / No. pesanan</th>
+            <th class="r" data-sort="qty">Qty</th><th class="r" data-sort="revenue">Omzet</th><th class="r" data-sort="fee" title="Potongan biaya admin marketplace">Biaya admin</th><th class="r" data-sort="profit" title="Setelah biaya admin, modal, pajak, affiliate &amp; biaya proses. Iklan dihitung terpisah di Profit bersih.">Profit</th>
+            <th data-sort="status">Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+        <tfoot id="foot"></tfoot>
+      </table>
+    </div>
+    <div id="pager" class="pager" hidden></div>
+    <p id="empty" class="empty" hidden>Belum ada transaksi pada filter ini. Catat lewat menu Order atau impor Excel.</p>
+  </section>
+
+  <dialog id="editDlg" aria-labelledby="editTitle">
+    <form id="editForm" method="dialog" autocomplete="off" class="pform">
+      <h2 id="editTitle" class="wide">Edit transaksi</h2>
+      <label>Tanggal<input type="date" id="eDate" required></label>
+      <label>Marketplace<input type="text" id="eMp" list="eMpList" required></label>
+      <datalist id="eMpList"></datalist>
+      <label class="span2">Produk<input type="text" id="eProduct" required></label>
+      <label class="span2">Resi / No. pesanan<input type="text" id="eOrder" maxlength="80" placeholder="opsional"></label>
+      <label>Qty<input type="number" id="eQty" min="1" step="1" required></label>
+      <label>Harga jual / unit (Rp)<input type="number" id="ePrice" min="0" step="any"></label>
+      <label>Modal / unit (Rp)<input type="number" id="eCogs" min="0" step="any"></label>
+      <label>Biaya admin (%)<input type="number" id="eFee" min="0" max="100" step="any"></label>
+      <label>Biaya lain (Rp)<input type="number" id="eOther" min="0" step="any"></label>
+      <label class="span2">Omzet tertera di marketplace (Rp)<input type="number" id="eOmzet" min="0" step="any" placeholder="kosong = qty × harga jual"></label>
+      <label>Status
+        <select id="eStatus">
+          <option value="selesai">Selesai</option>
+          <option value="dibatalkan">Dibatalkan</option>
+          <option value="dikembalikan">Dikembalikan</option>
+        </select>
+      </label>
+      <div id="ePreview" class="preview wide"></div>
+      <p id="eMsg" role="alert" class="wide pmsg error"></p>
+      <div class="pform-btns wide dlg-btns">
+        <button type="button" id="eCancel">Batal</button>
+        <button type="submit" class="primary">Simpan perubahan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="shopeeDlg" aria-labelledby="spTitle">
+    <form id="spForm" method="dialog" autocomplete="off" class="sp">
+      <h2 id="spTitle">Impor Laporan Penghasilan Shopee</h2>
+      <p id="spSummary" class="sp-sum"></p>
+      <p class="sp-note">Laporan Shopee tidak mencantumkan harga modal dan jumlah barang. Jumlah (qty) diperkirakan dari harga. Isi modal per unit supaya profit akurat; yang dikosongkan dianggap Rp 0.</p>
+      <div class="sp-all">
+        <label>Modal sama untuk semua produk yang masih kosong (Rp) <input type="number" min="0" step="any" id="spAll" placeholder="mis. 12000"></label>
+        <button type="button" id="spApplyAll">Isi yang kosong</button>
+      </div>
+      <div class="table-wrap sp-table" tabindex="0" aria-label="Daftar produk dalam laporan">
+        <table>
+          <thead><tr><th>Produk</th><th class="r">Baris</th><th class="r">Perkiraan unit</th><th class="r">Modal / unit (Rp)</th></tr></thead>
+          <tbody id="spRows"></tbody>
+        </table>
+      </div>
+      <label class="check"><input type="checkbox" id="spSaveMenu" checked> <span>Simpan modal yang diisi ke Menu Produk (terisi otomatis pada impor berikutnya)</span></label>
+      <label class="check" id="spProcWrap"><input type="checkbox" id="spProc"> <span id="spProcText"></span></label>
+      <p class="sp-ok" id="spProcOk" hidden></p>
+      <label class="check" id="spTopupWrap"><input type="checkbox" id="spTopup"> <span id="spTopupText"></span></label>
+      <div class="pform-btns dlg-btns">
+        <button type="button" id="spCancel">Batal</button>
+        <button type="submit" class="primary" id="spOk">Impor</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="importDlg" aria-labelledby="impTitle">
+    <form method="dialog" id="impForm">
+      <h2 id="impTitle">Pratinjau impor</h2>
+      <p id="impSummary" class="imp-summary"></p>
+      <div id="impWarn" class="imp-warn" hidden></div>
+      <div class="imp-table"><table><thead><tr><th>Tanggal</th><th>Marketplace</th><th>Produk</th><th class="r">Qty</th><th class="r">Omzet</th><th>Status</th></tr></thead><tbody id="impRows"></tbody></table></div>
+      <p id="impMore" class="sub"></p>
+      <div class="dlg-btns"><button type="button" id="impCancel" class="ghost">Batal</button><button type="submit" id="impOk" class="primary">Impor</button></div>
+    </form>
+  </dialog>
+
+  <footer class="data-foot" id="dataFoot">
+    <label class="check"><input type="checkbox" id="autoBackup"> <span>Unduh cadangan otomatis tiap 7 hari saat Dashboard dibuka</span></label>
+    <span id="lastBackupText" class="muted"></span>
+  </footer>
+
+  <script src="xlsx.js"></script>
+  <script src="shared.js"></script>
+  <script src="report.js"></script>
+  <script src="polish.js"></script>
+  <script src="mobile.js"></script>
+</body>
+</html>
