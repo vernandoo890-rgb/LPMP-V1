@@ -91,3 +91,6 @@ body:not(.ord) .stat strong { letter-spacing: -.02em; }
 html.kb .bnav { display: none; }
 html.kb .dock { bottom: 0; }
 @media (max-height: 560px) { html.kb .dock { display: none; } }
+
+/* Logo header = ikon aplikasi baru */
+body:not(.ord) h1::before { background: url("icons/icon128.png") center / cover no-repeat; border-radius: 9px; box-shadow: 0 4px 12px -3px rgba(15,118,110,.55); }
